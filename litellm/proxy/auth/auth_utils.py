@@ -467,6 +467,8 @@ _BANNED_REQUEST_BODY_PARAMS: Final[tuple[str, ...]] = (
     "aws_session_name",
     "aws_external_id",
     "aws_session_tags",
+    "aws_region_name",
+    "base_model",
     "vertex_credentials",
     "vertex_location",
     "vertex_project",
