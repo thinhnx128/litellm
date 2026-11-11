@@ -1106,10 +1106,37 @@ def model_max_budget_of(holder: ModelMaxBudgetHolder) -> Mapping[str, object] | 
     return holder.model_max_budget
 
 
+VIDEO_RETRIEVAL_ROUTES: Final = frozenset(
+    {
+        "/videos/{video_id}",
+        "/v1/videos/{video_id}",
+        "/videos/{video_id}/content",
+        "/v1/videos/{video_id}/content",
+    }
+)
+
+
+def _is_video_retrieval_route(route: str) -> bool:
+    if route in VIDEO_RETRIEVAL_ROUTES:
+        return True
+    for prefix in ("/v1/videos/", "/videos/"):
+        if route.startswith(prefix):
+            rest = route[len(prefix) :].strip("/")
+            if not rest:
+                return False
+            parts = rest.split("/")
+            if len(parts) == 1:
+                return True
+            if len(parts) == 2 and parts[1] == "content":
+                return True
+            return False
+    return False
+
+
 def route_skips_budget_checks(route: str) -> bool:
     if route in BUDGET_ENFORCED_SIDE_EFFECT_ROUTES:
         return False
-    if route in MODEL_DISCOVERY_ROUTES:
+    if route in MODEL_DISCOVERY_ROUTES or _is_video_retrieval_route(route):
         return True
     if RouteChecks.is_llm_api_route(route=route):
         return False
